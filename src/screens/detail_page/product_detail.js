@@ -637,7 +637,7 @@ class Product_details extends React.Component {
 
   sendCartDataToApi = async (realTimeCart, selectedItem) => {
     await sendCartDataToAPI(
-      this.props.dataInCart,
+      realTimeCart.length > 0 ? realTimeCart : this.props.dataInCart,
       this.props.user_details,
       this.props.addToCart
     )
@@ -1057,7 +1057,7 @@ class Product_details extends React.Component {
         // openCart: true,
         cartItems: this.props.dataInCart ? this.props.dataInCart : [],
       });
-      this.sendCartDataToApi(realTimeCart, selectedItem);
+      this.sendCartDataToApi([selectedItem], selectedItem);
     }, 100);
     this.forceUpdate();
   };
@@ -1266,7 +1266,7 @@ class Product_details extends React.Component {
         cartItems: this.props.dataInCart ? this.props.dataInCart : [],
         // openCart: true,
       });
-      this.sendCartDataToApi();
+      this.sendCartDataToApi([selectedItem]); 
     }, 50);
     this.forceUpdate();
   };

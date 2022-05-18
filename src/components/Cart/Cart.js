@@ -49,11 +49,33 @@ const Cart = ({
 
   //removing deleted item from items state
   const removeItemFromCart = async (removedItem) => {
+    let selectedItem = {}
+    dataInCart.map((itm) => {
+      if (itm === removedItem) {
+        if (itm.TypeOfProduct === "simple") {
+          itm.simpleData[0].package[0]
+            ? itm.simpleData[0].package.map((pck) => {
+                if (pck.selected) {
+                    pck.quantity = 0;
+                }
+              })
+            : 
+              (itm.simpleData[0].userQuantity =0);
+        } else {
+          if (+itm.qty) {
+            return (itm.qty = 0);
+          }
+        }
+        selectedItem = itm
+      }
+    });
+    
     const newItemsArray = dataInCart.filter((itm) => {
       if (itm !== removedItem) {
         return itm;
       }
     });
+    
     if (document.querySelector(".quantity-error")) {
       document.querySelector(".quantity-error").innerHTML = "";
     }
@@ -66,7 +88,7 @@ const Cart = ({
         ? JSON.stringify(newItemsArray)
         : JSON.stringify([newItemsArray])
     );
-    await sendCartDataToAPI(newItemsArray, user_details, addToCart)
+    await sendCartDataToAPI([selectedItem], user_details, addToCart)
       .then((res) => {})
       .catch((error) => {
         console.log(error);
