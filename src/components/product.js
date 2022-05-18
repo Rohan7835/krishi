@@ -452,7 +452,7 @@ function Product({
   useEffect(() => {
     getAllProductsDataByRegion();
   }, [subscription]);
-  //showing all products
+  //showing all products dfdfdf
 
   useEffect(() => {
     let catId;
@@ -545,7 +545,7 @@ function Product({
   }
   //getting products according to region ID stored in localstorage
   useEffect(getAllProductsDataByRegion, []);
-  
+
   const handleChange = (e) => {
     const selectedPackageId = e.target.value;
     const id = e.target.id;
