@@ -605,9 +605,8 @@ class Cart extends React.PureComponent {
             : itm.simpleData[0].userQuantity !== 1 &&
               (itm.simpleData[0].userQuantity -= 1);
         } else {
-          if (itm.qty !== 1) {
-            return (itm.qty = itm.qty - 1);
-          }
+          if(+itm.qty > 1) itm.qty = itm.qty - 1
+          
         }
         selectedItem = itm
       }
@@ -1802,17 +1801,7 @@ class Cart extends React.PureComponent {
           swal({
             title: "Network Error",
           });
-          // this.getCartData().then(() => {
-          //   this.setState({ allDataLoaded: true });
-          //   // this.props.history.push("checkout");
-          //   localStorage.setItem("discount_amount", this.state.discount_amount);
-          //   localStorage.setItem(
-          //     "discount_percentage",
-          //     this.state.discount_percentage
-          //   );
-          // });
         }
-        // }
       })
       .catch((error) => {
         console.log(error);
@@ -2918,6 +2907,27 @@ class Cart extends React.PureComponent {
       document.querySelector(".quantity-error-cart").innerHTML = "";
     }
     this.setState({ loading: true });
+    let selectedItem = {}
+    this.state.cart_data.map((itm) => {
+      if (itm === removedItem) {
+        if (itm.TypeOfProduct === "simple") {
+          itm.simpleData[0].package[0]
+            ? itm.simpleData[0].package.map((pck) => {
+                if (pck.selected) {
+                    pck.quantity = 0;
+                }
+              })
+            : 
+              (itm.simpleData[0].userQuantity =0);
+        } else {
+          if (+itm.qty) {
+            (itm.qty = 0);
+          }
+        }
+        selectedItem = itm
+      }
+    });
+    
     const newItemsArray = this.state.cart_data.filter((itm) => {
       if (itm !== removedItem) {
         return itm;
@@ -2929,7 +2939,7 @@ class Cart extends React.PureComponent {
       if (itm.preOrder) {
         subscribe = true;
       }
-    });
+    }); 
     localStorage.setItem("coupon_code", "");
     localStorage.setItem("freepackage", "");
     localStorage.setItem("freeproduct", "");
@@ -2942,7 +2952,7 @@ class Cart extends React.PureComponent {
       coupon: "",
     });
     await sendCartDataToAPI(
-      newItemsArray,
+      [selectedItem],
       this.props.user_details,
       this.props.addToCart
     )

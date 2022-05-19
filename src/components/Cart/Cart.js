@@ -63,7 +63,7 @@ const Cart = ({
               (itm.simpleData[0].userQuantity =0);
         } else {
           if (+itm.qty) {
-            return (itm.qty = 0);
+            (itm.qty = 0);
           }
         }
         selectedItem = itm
@@ -234,9 +234,7 @@ const Cart = ({
             : itm.simpleData[0].userQuantity !== 1 &&
               (itm.simpleData[0].userQuantity -= 1);
         } else {
-          if (itm.qty !== 1) {
-            return (itm.qty = itm.qty - 1);
-          }
+            itm.qty = itm.qty - 1
         }
         selectedItem = itm
       }
