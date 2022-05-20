@@ -524,6 +524,7 @@ function Group_Product({
       }
     } else {
       setMinQtyError(false);
+      setFullPageLoading(false)
     }
   };
 
