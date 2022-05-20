@@ -196,7 +196,9 @@ function Group_Product({
     }
 
     setTimeout(() => {
-      realTimeCart.push(passData);
+      let unique_id = +new Date()
+      realTimeCart.push({...passData,
+        unique_id: unique_id});
       //manipulating data to send in API
       realTimeCart.map((item, index) =>
         item.simpleData &&
@@ -314,6 +316,7 @@ function Group_Product({
             totalprice: item.qty * item.price,
             without_package: true,
             newlyAdded:true,
+            unique_id:item.unique_id,
           });
         }
       });
@@ -331,6 +334,7 @@ function Group_Product({
               totalprice: passData.qty * passData.price,
               without_package: true,
               newlyAdded:true,
+              unique_id:unique_id,
             },
           ],
           // CartDetail: cart_data_dt,

@@ -746,6 +746,7 @@ function Product({
       ? JSON.parse(localStorage.getItem("cartItem"))
       : [];
     var quantityInCart = 0;
+    let errorPresent = false;
     let selectedItmPck =
       selectedItem.simpleData[0].package.length > 0
         ? selectedItem.simpleData[0].package.filter((pck) => pck.selected)
@@ -797,6 +798,7 @@ function Product({
                       itmitm.quantity + 1;
                   } else {
                     quantityError = true;
+                    errorPresent = true;
                     swal({
                       title: "Error!",
                       text:
@@ -873,6 +875,7 @@ function Product({
           ) {
             selectedItem.simpleData[0].userQuantity = quantityInCart + 1;
           } else {
+            errorPresent = true;
             swal({
               title: "Error!",
               text:
@@ -916,6 +919,7 @@ function Product({
             selectedItem.simpleData[0].package[indind].quantity =
               itmitm.quantity + 1;
           } else {
+            errorPresent = true;
             swal({
               title: "Error!",
               text:
@@ -937,122 +941,74 @@ function Product({
     }
 
     setRender((prv) => !prv);
-    await sendCartDataToAPI([selectedItem], user_details, addToCart)
-      .then((res) => {
-        if (
-          selectedItem.preOrder === true && 
-          realTimeCart.length === 1 && 
-          already_cart === false 
-        ) {
-          localStorage.setItem("status", true);
-          changeSubscribeToggleAPI(true);
-          swal({
-            title: "Pre-ordering produce?",
-            text: "You will only be able to see products available for delivery on the same day as the pre-order product.",
-            icon: "warning",
-            dangerMode: true,
-            buttons: {
-              confirm: {
-                text: "Go ahead",
-                value: true,
-                visible: true,
-                className: "",
-                closeModal: true,
-              },
-              cancel: {
-                text: "Go back",
-                value: false,
-                visible: true,
-                className: "back-swal-btn",
-                closeModal: true,
-              },
-            },
-          }).then((confirm) => {
-            if (confirm) {
-              changeSubscribeTrue();
-              setRenderProducts(!renderProducts);
-            } else {
-              newarrayofcart = newarrayofcart
-                ? newarrayofcart.filter((itm) => itm._id !== selectedItem._id)
-                : [];
-              localStorage.setItem("cartItem", JSON.stringify(newarrayofcart));
-              addToCart([]);
-              addToCart(newarrayofcart);
-              addToCart([]);
-              quantityChange(!cartItemQuantity);
-              setRenderProducts(!renderProducts);
-            }
-          });
-        }
-
-        if (res.data.data === "you can not add both item") {
-          swal({
-            title: "Pre-ordering produce?",
-            text: "You will only be able to see products available for delivery on the same day as the pre-order product and your current cart will get empty.",
-            icon: "warning",
-            dangerMode: true,
-            buttons: {
-              confirm: {
-                text: "Go ahead",
-                value: true,
-                visible: true,
-                className: "",
-                closeModal: true,
-              },
-              cancel: {
-                text: "Go back",
-                value: false,
-                visible: true,
-                className: "back-swal-btn",
-                closeModal: true,
-              },
-            },
-          }).then((confirm) => {
-            if (confirm) {
-              let emptyarray = [];
-              localStorage.setItem("status", true);
-              changeSubscribeToggleAPI(true);
-              localStorage.setItem("cartItem", JSON.stringify(emptyarray));
-              addToCart([]);
-              localStorage.setItem("cartItem", JSON.stringify([selectedItem]));
-              addToCart([selectedItem]);
-              setRenderProducts(!renderProducts);
-              changeSubscribeTrue();
-              setRenderProducts(!renderProducts);
-              quantityChange(!cartItemQuantity);
-            } else {
-              var newarrayofcart = realTimeCart;
-              newarrayofcart = newarrayofcart.filter(
-                (itm) => itm._id !== selectedItem._id
-              );
-              localStorage.setItem("cartItem", JSON.stringify(newarrayofcart));
-              addToCart([]);
-              addToCart(newarrayofcart);
-              setRenderProducts(!renderProducts);
-              quantityChange(!cartItemQuantity);
-            }
-          });
-        } else if (
-          res.data.data === "you can order one preorder product at a time."
-        ) {
-          const preorderItemsInCart = realTimeCart.filter((a) => a.preOrder);
-          if (selectedItem._id === preorderItemsInCart[0]._id) {
-          } else {
+    if (!errorPresent) {
+      await sendCartDataToAPI([selectedItem], user_details, addToCart)
+        .then((res) => {
+          if (
+            selectedItem.preOrder === true &&
+            realTimeCart.length === 1 &&
+            already_cart === false
+          ) {
+            localStorage.setItem("status", true);
+            changeSubscribeToggleAPI(true);
             swal({
               title: "Pre-ordering produce?",
-              text: "You can only order one pre-order product at a time.",
+              text: "You will only be able to see products available for delivery on the same day as the pre-order product.",
               icon: "warning",
               dangerMode: true,
               buttons: {
-                // confirm: {
-                //   text: "Go ahead",
-                //   value: true,
-                //   visible: true,
-                //   className: "",
-                //   closeModal: true,
-                // },
+                confirm: {
+                  text: "Go ahead",
+                  value: true,
+                  visible: true,
+                  className: "",
+                  closeModal: true,
+                },
                 cancel: {
-                  text: "Ok",
+                  text: "Go back",
+                  value: false,
+                  visible: true,
+                  className: "back-swal-btn",
+                  closeModal: true,
+                },
+              },
+            }).then((confirm) => {
+              if (confirm) {
+                changeSubscribeTrue();
+                setRenderProducts(!renderProducts);
+              } else {
+                newarrayofcart = newarrayofcart
+                  ? newarrayofcart.filter((itm) => itm._id !== selectedItem._id)
+                  : [];
+                localStorage.setItem(
+                  "cartItem",
+                  JSON.stringify(newarrayofcart)
+                );
+                addToCart([]);
+                addToCart(newarrayofcart);
+                addToCart([]);
+                quantityChange(!cartItemQuantity);
+                setRenderProducts(!renderProducts);
+              }
+            });
+          }
+
+          if (res.data.data === "you can not add both item") {
+            swal({
+              title: "Pre-ordering produce?",
+              text: "You will only be able to see products available for delivery on the same day as the pre-order product and your current cart will get empty.",
+              icon: "warning",
+              dangerMode: true,
+              buttons: {
+                confirm: {
+                  text: "Go ahead",
+                  value: true,
+                  visible: true,
+                  className: "",
+                  closeModal: true,
+                },
+                cancel: {
+                  text: "Go back",
                   value: false,
                   visible: true,
                   className: "back-swal-btn",
@@ -1065,7 +1021,6 @@ function Product({
                 localStorage.setItem("status", true);
                 changeSubscribeToggleAPI(true);
                 localStorage.setItem("cartItem", JSON.stringify(emptyarray));
-                addToCart([]);
                 addToCart([]);
                 localStorage.setItem(
                   "cartItem",
@@ -1091,238 +1046,299 @@ function Product({
                 quantityChange(!cartItemQuantity);
               }
             });
-          }
-        } else if (res.data.result === "user_id Required") {
-          var newarrayofcart = realTimeCart;
-          var checkingarraypoping = realTimeCart;
-          checkingarraypoping = checkingarraypoping.filter(
-            (itm) => itm._id !== selectedItem._id
-          );
-          // checkingarraypoping.splice(checkingarraypoping.length,1);
-          var checkingarray = [];
-          checkingarray = checkingarraypoping;
-
-          if (JSON.parse(localStorage.getItem("status")) == true) {
-            for (var j = 0; j < checkingarray.length; j++) {
-              if (
-                checkingarray[j].preOrder === selectedItem.preOrder &&
-                selectedItem.preOrder === true
-              ) {
-                newarrayofcart = newarrayofcart.filter(
-                  (itm) => itm._id !== selectedItem._id
-                );
-                localStorage.setItem(
-                  "cartItem",
-                  JSON.stringify(newarrayofcart)
-                );
-                addToCart([]);
-                addToCart(newarrayofcart);
-                setRenderProducts(!renderProducts);
-                swal({
-                  title: "Pre-ordering produce?",
-                  text: "You can only order one pre-order product at a time.",
-                  icon: "warning",
-                  dangerMode: true,
-                  buttons: {
-                    cancel: {
-                      text: "Ok",
-                      value: false,
-                      visible: true,
-                      className: "back-swal-btn",
-                      closeModal: true,
-                    },
-                    // cancel: {
-                    //   text: "Ok",
-                    //   value: false,
-                    //   visible: true,
-                    //   className: "back-swal-btn",
-                    //   closeModal: true,
-                    // },
-                  },
-                }).then((confirm) => {
-                  if (confirm) {
-                  }
-                });
-              } else if (checkingarray[j] && selectedItem.preOrder === true) {
-                setRenderProducts(!renderProducts);
-                swal({
-                  title: "Pre-ordering produce?",
-                  text: "You will only be able to see products available for delivery on the same day as the pre-order product.",
-                  icon: "warning",
-                  dangerMode: true,
-                });
-              }
-            }
-          } else {
-            for (var i = 0; i < checkingarray.length; i++) {
-              if (
-                checkingarray[i].preOrder === selectedItem.preOrder &&
-                selectedItem.preOrder === true
-              ) {
-                newarrayofcart = newarrayofcart.filter(
-                  (itm) => itm._id !== selectedItem._id
-                );
-                localStorage.setItem(
-                  "cartItem",
-                  JSON.stringify(newarrayofcart)
-                );
-                addToCart(newarrayofcart);
-                setRenderProducts(!renderProducts);
-
-                swal({
-                  title: "Pre-ordering produce?",
-                  text: "You can only order one pre-order product at a time.",
-                  icon: "warning",
-                  dangerMode: true,
-                  buttons: {
-                    cancel: {
-                      text: "Ok",
-                      value: false,
-                      visible: true,
-                      className: "back-swal-btn",
-                      closeModal: true,
-                    },
-                    // cancel: {
-                    //   text: "Ok",
-                    //   value: false,
-                    //   visible: true,
-                    //   className: "back-swal-btn",
-                    //   closeModal: true,
-                    // },
-                  },
-                }).then((confirm) => {
-                  if (confirm) {
-                  }
-                });
-              } else if (checkingarray[i] && selectedItem.preOrder === true) {
-                setRenderProducts(!renderProducts);
-                swal({
-                  title: "Pre-ordering produce?",
-                  text: "You will only be able to see products available for delivery on the same day as the pre-order product and your current cart will get empty.",
-                  icon: "warning",
-                  dangerMode: true,
-                  buttons: {
-                    confirm: {
-                      text: "Go ahead",
-                      value: true,
-                      visible: true,
-                      className: "",
-                      closeModal: true,
-                    },
-                    cancel: {
-                      text: "Go back",
-                      value: false,
-                      visible: true,
-                      className: "back-swal-btn",
-                      closeModal: true,
-                    },
-                  },
-                }).then((confirm) => {
-                  if (confirm) {
-                    let emptyarray = [];
-                    localStorage.setItem("status", true);
-                    changeSubscribeToggleAPI(true);
-                    localStorage.setItem(
-                      "cartItem",
-                      JSON.stringify(emptyarray)
-                    );
-                    addToCart([]);
-                    // window.location = "/product/" + selectedItem.product_name;
-                    changeSubscribeTrue();
-                    addToCart([]);
-                    localStorage.setItem(
-                      "cartItem",
-                      JSON.stringify([selectedItem])
-                    );
-                    addToCart([selectedItem]);
-                    setRenderProducts(!renderProducts);
-                  } else {
-                    newarrayofcart = newarrayofcart.filter(
-                      (itm) => itm._id !== selectedItem._id
-                    );
-                    localStorage.setItem(
-                      "cartItem",
-                      JSON.stringify(newarrayofcart)
-                    );
-                    addToCart([]);
-                    addToCart(newarrayofcart);
-                    setRenderProducts(!renderProducts);
-                  }
-                });
-              }
-            }
-          }
-        } else if (res.data.message === "error") {
-          swal({
-            title: "Error!",
-            text: res.data.data,
-            icon: "warning",
-            dangerMode: true,
-          });
-          var newarrayofcart = realTimeCart;
-          let webPck;
-          newarrayofcart = newarrayofcart.filter((itm) => {
-            let cartP = itm.simpleData[0].package.filter((c) => c.selected);
-            webPck = selectedItem.simpleData[0].package.filter(
-              (a) => a.selected
-            );
-            if (itm._id !== selectedItem._id) {
-              return itm;
+          } else if (
+            res.data.data === "you can order one preorder product at a time."
+          ) {
+            const preorderItemsInCart = realTimeCart.filter((a) => a.preOrder);
+            if (selectedItem._id === preorderItemsInCart[0]._id) {
             } else {
-              if (cartP[0]._id !== webPck[0]._id) {
-                return itm;
+              swal({
+                title: "Pre-ordering produce?",
+                text: "You can only order one pre-order product at a time.",
+                icon: "warning",
+                dangerMode: true,
+                buttons: {
+                  // confirm: {
+                  //   text: "Go ahead",
+                  //   value: true,
+                  //   visible: true,
+                  //   className: "",
+                  //   closeModal: true,
+                  // },
+                  cancel: {
+                    text: "Ok",
+                    value: false,
+                    visible: true,
+                    className: "back-swal-btn",
+                    closeModal: true,
+                  },
+                },
+              }).then((confirm) => {
+                if (confirm) {
+                  let emptyarray = [];
+                  localStorage.setItem("status", true);
+                  changeSubscribeToggleAPI(true);
+                  localStorage.setItem("cartItem", JSON.stringify(emptyarray));
+                  addToCart([]);
+                  addToCart([]);
+                  localStorage.setItem(
+                    "cartItem",
+                    JSON.stringify([selectedItem])
+                  );
+                  addToCart([selectedItem]);
+                  setRenderProducts(!renderProducts);
+                  changeSubscribeTrue();
+                  setRenderProducts(!renderProducts);
+                  quantityChange(!cartItemQuantity);
+                } else {
+                  var newarrayofcart = realTimeCart;
+                  newarrayofcart = newarrayofcart.filter(
+                    (itm) => itm._id !== selectedItem._id
+                  );
+                  localStorage.setItem(
+                    "cartItem",
+                    JSON.stringify(newarrayofcart)
+                  );
+                  addToCart([]);
+                  addToCart(newarrayofcart);
+                  setRenderProducts(!renderProducts);
+                  quantityChange(!cartItemQuantity);
+                }
+              });
+            }
+          } else if (res.data.result === "user_id Required") {
+            var newarrayofcart = realTimeCart;
+            var checkingarraypoping = realTimeCart;
+            checkingarraypoping = checkingarraypoping.filter(
+              (itm) => itm._id !== selectedItem._id
+            );
+            // checkingarraypoping.splice(checkingarraypoping.length,1);
+            var checkingarray = [];
+            checkingarray = checkingarraypoping;
+
+            if (JSON.parse(localStorage.getItem("status")) == true) {
+              for (var j = 0; j < checkingarray.length; j++) {
+                if (
+                  checkingarray[j].preOrder === selectedItem.preOrder &&
+                  selectedItem.preOrder === true
+                ) {
+                  newarrayofcart = newarrayofcart.filter(
+                    (itm) => itm._id !== selectedItem._id
+                  );
+                  localStorage.setItem(
+                    "cartItem",
+                    JSON.stringify(newarrayofcart)
+                  );
+                  addToCart([]);
+                  addToCart(newarrayofcart);
+                  setRenderProducts(!renderProducts);
+                  swal({
+                    title: "Pre-ordering produce?",
+                    text: "You can only order one pre-order product at a time.",
+                    icon: "warning",
+                    dangerMode: true,
+                    buttons: {
+                      cancel: {
+                        text: "Ok",
+                        value: false,
+                        visible: true,
+                        className: "back-swal-btn",
+                        closeModal: true,
+                      },
+                      // cancel: {
+                      //   text: "Ok",
+                      //   value: false,
+                      //   visible: true,
+                      //   className: "back-swal-btn",
+                      //   closeModal: true,
+                      // },
+                    },
+                  }).then((confirm) => {
+                    if (confirm) {
+                    }
+                  });
+                } else if (checkingarray[j] && selectedItem.preOrder === true) {
+                  setRenderProducts(!renderProducts);
+                  swal({
+                    title: "Pre-ordering produce?",
+                    text: "You will only be able to see products available for delivery on the same day as the pre-order product.",
+                    icon: "warning",
+                    dangerMode: true,
+                  });
+                }
+              }
+            } else {
+              for (var i = 0; i < checkingarray.length; i++) {
+                if (
+                  checkingarray[i].preOrder === selectedItem.preOrder &&
+                  selectedItem.preOrder === true
+                ) {
+                  newarrayofcart = newarrayofcart.filter(
+                    (itm) => itm._id !== selectedItem._id
+                  );
+                  localStorage.setItem(
+                    "cartItem",
+                    JSON.stringify(newarrayofcart)
+                  );
+                  addToCart(newarrayofcart);
+                  setRenderProducts(!renderProducts);
+
+                  swal({
+                    title: "Pre-ordering produce?",
+                    text: "You can only order one pre-order product at a time.",
+                    icon: "warning",
+                    dangerMode: true,
+                    buttons: {
+                      cancel: {
+                        text: "Ok",
+                        value: false,
+                        visible: true,
+                        className: "back-swal-btn",
+                        closeModal: true,
+                      },
+                      // cancel: {
+                      //   text: "Ok",
+                      //   value: false,
+                      //   visible: true,
+                      //   className: "back-swal-btn",
+                      //   closeModal: true,
+                      // },
+                    },
+                  }).then((confirm) => {
+                    if (confirm) {
+                    }
+                  });
+                } else if (checkingarray[i] && selectedItem.preOrder === true) {
+                  setRenderProducts(!renderProducts);
+                  swal({
+                    title: "Pre-ordering produce?",
+                    text: "You will only be able to see products available for delivery on the same day as the pre-order product and your current cart will get empty.",
+                    icon: "warning",
+                    dangerMode: true,
+                    buttons: {
+                      confirm: {
+                        text: "Go ahead",
+                        value: true,
+                        visible: true,
+                        className: "",
+                        closeModal: true,
+                      },
+                      cancel: {
+                        text: "Go back",
+                        value: false,
+                        visible: true,
+                        className: "back-swal-btn",
+                        closeModal: true,
+                      },
+                    },
+                  }).then((confirm) => {
+                    if (confirm) {
+                      let emptyarray = [];
+                      localStorage.setItem("status", true);
+                      changeSubscribeToggleAPI(true);
+                      localStorage.setItem(
+                        "cartItem",
+                        JSON.stringify(emptyarray)
+                      );
+                      addToCart([]);
+                      // window.location = "/product/" + selectedItem.product_name;
+                      changeSubscribeTrue();
+                      addToCart([]);
+                      localStorage.setItem(
+                        "cartItem",
+                        JSON.stringify([selectedItem])
+                      );
+                      addToCart([selectedItem]);
+                      setRenderProducts(!renderProducts);
+                    } else {
+                      newarrayofcart = newarrayofcart.filter(
+                        (itm) => itm._id !== selectedItem._id
+                      );
+                      localStorage.setItem(
+                        "cartItem",
+                        JSON.stringify(newarrayofcart)
+                      );
+                      addToCart([]);
+                      addToCart(newarrayofcart);
+                      setRenderProducts(!renderProducts);
+                    }
+                  });
+                }
               }
             }
-          });
-          localStorage.setItem("cartItem", JSON.stringify(newarrayofcart));
-          addToCart([]);
-          addToCart(newarrayofcart);
-          setRenderProducts(!renderProducts);
-          setTimeout(() => {
-            product.map((itm) => {
-              if (itm._id === selectedItem._id) {
-                //looping thorught all products and adding quantity to each product from cart
-                if (itm.simpleData && itm.simpleData[0]) {
-                  itm.simpleData[0].package[0]
-                    ? itm.simpleData[0].package.map((pck, index) => {
-                        if (pck._id === webPck[0]._id) {
-                          pck.quantity =
-                            quantityInCart > 0 ? quantityInCart : 0;
-                        }
-                        if (quantityInCart === 0) {
-                          if (pck._id === webPck[0]._id) {
-                            pck.selected = true;
-                          } else {
-                            pck.selected = false;
-                          }
-                        }
-                      })
-                    : (itm.simpleData[0].userQuantity = 0);
+          } else if (res.data.message === "errror") {
+            swal({
+              title: "Error!",
+              text: "You can not add " + res.data.data.join(""), 
+              icon: "warning",
+              dangerMode: true,
+            });
+            var newarrayofcart = realTimeCart;
+            let webPck;
+            newarrayofcart = newarrayofcart.filter((itm) => {
+              let cartP = itm.TypeOfProduct === "simple" ? itm.simpleData[0].package.filter((c) => c.selected) : [];
+              webPck = selectedItem.simpleData[0].package.filter(
+                (a) => a.selected
+              );
+              console.log(cartP[0]?._id, webPck[0]._id , cartP[0]?._id !== webPck[0]._id)
+              if (itm._id !== selectedItem._id) {
+                return itm;
+              } else {
+                if (cartP[0]?._id !== webPck[0]._id) {
+                  return itm;
                 }
               }
             });
-          }, 0);
-          quantityChange(!cartItemQuantity);
-        } else {
-          // swal({
-          //   // title: ,
-          //   text: "This Item is currently out of stock",
-          //   icon: "warning",
-          //   dangerMode: true,
-          // });
-        }
-        setShowCart(true);
-        openCart();
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+            localStorage.setItem("cartItem", JSON.stringify(newarrayofcart));
+            addToCart([]);
+            addToCart(newarrayofcart);
+            setRenderProducts(!renderProducts);
+            setTimeout(() => {
+              product.map((itm) => {
+                if (itm._id === selectedItem._id) {
+                  //looping thorught all products and adding quantity to each product from cart
+                  if (itm.simpleData && itm.simpleData[0]) {
+                    itm.simpleData[0].package[0]
+                      ? itm.simpleData[0].package.map((pck, index) => {
+                          if (pck._id === webPck[0]._id) {
+                            pck.quantity =
+                              quantityInCart > 0 ? quantityInCart : 0;
+                          }
+                          if (quantityInCart === 0) {
+                            if (pck._id === webPck[0]._id) {
+                              pck.selected = true;
+                            } else {
+                              pck.selected = false;
+                            }
+                          }
+                        })
+                      : (itm.simpleData[0].userQuantity = 0);
+                  }
+                }
+              });
+            }, 0);
+            quantityChange(!cartItemQuantity);
+          } else {
+            // swal({
+            //   // title: ,
+            //   text: "This Item is currently out of stock",
+            //   icon: "warning",
+            //   dangerMode: true,
+            // });
+          }
+          setShowCart(true);
+          openCart();
+        })
+        .catch((error) => {
+          console.log(error);
+        });
 
-    localStorage.setItem("coupon_code", "");
-    localStorage.setItem("freepackage", "");
-    localStorage.setItem("freeproduct", "");
-    localStorage.setItem("couponStatus", 2);
-    localStorage.setItem("discount_amount", "");
+      localStorage.setItem("coupon_code", "");
+      localStorage.setItem("freepackage", "");
+      localStorage.setItem("freeproduct", "");
+      localStorage.setItem("couponStatus", 2);
+      localStorage.setItem("discount_amount", "");
+    }
     setTimeout(() => {
       setShowCart(true);
       // openCart();

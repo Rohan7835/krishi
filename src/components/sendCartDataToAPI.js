@@ -232,6 +232,7 @@ function sendCartDataToAPI(cart, user_details, addToCart) {
         ...item,
         product_id: item._id,
         qty: item.qty,
+        unique_id: item.unique_id || "",
         totalprice: item.qty * item.price,
         without_package: true,
       });

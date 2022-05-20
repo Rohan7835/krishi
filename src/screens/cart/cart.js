@@ -223,6 +223,7 @@ class Cart extends React.PureComponent {
                     ? item.product_categories
                     : item.product_id.product_categories,
                 qty: item.qty,
+                unique_id: item.unique_id || null,
                 price: item.price ? item.price : 0,
                 totalprice: item.totalprice ? item.totalprice : 0,
                 unitQuantity: item.unitQuantity,
@@ -464,7 +465,7 @@ class Cart extends React.PureComponent {
     }
     // var newarray = this.props.dataInCart;
     var newarray = [...this.state.cart_data];
-    let selectedItem ={}
+    let selectedItem = {};
     newarray.map((itm) => {
       var avai = itm.simpleData[0]
         ? itm.simpleData[0].availableQuantity
@@ -498,7 +499,7 @@ class Cart extends React.PureComponent {
             ? (itm.simpleData[0].userQuantity += 1)
             : (err.style.display = "block")
           : (itm.qty = itm.qty + 1);
-          selectedItem = itm
+        selectedItem = itm;
       }
     });
     var data = newarray;
@@ -589,7 +590,7 @@ class Cart extends React.PureComponent {
     this.setState({ loading: true });
     // var newarray = this.props.dataInCart;
     var newarray = this.state.cart_data;
-    let selectedItem = {}
+    let selectedItem = {};
     newarray.map((itm) => {
       if (itm === i) {
         if (itm.TypeOfProduct === "simple") {
@@ -605,10 +606,9 @@ class Cart extends React.PureComponent {
             : itm.simpleData[0].userQuantity !== 1 &&
               (itm.simpleData[0].userQuantity -= 1);
         } else {
-          if(+itm.qty > 1) itm.qty = itm.qty - 1
-          
+          if (+itm.qty > 1) itm.qty = itm.qty - 1;
         }
-        selectedItem = itm
+        selectedItem = itm;
       }
     });
     var data = newarray;
@@ -2907,27 +2907,26 @@ class Cart extends React.PureComponent {
       document.querySelector(".quantity-error-cart").innerHTML = "";
     }
     this.setState({ loading: true });
-    let selectedItem = {}
+    let selectedItem = {};
     this.state.cart_data.map((itm) => {
       if (itm === removedItem) {
         if (itm.TypeOfProduct === "simple") {
           itm.simpleData[0].package[0]
             ? itm.simpleData[0].package.map((pck) => {
                 if (pck.selected) {
-                    pck.quantity = 0;
+                  pck.quantity = 0;
                 }
               })
-            : 
-              (itm.simpleData[0].userQuantity =0);
+            : (itm.simpleData[0].userQuantity = 0);
         } else {
           if (+itm.qty) {
-            (itm.qty = 0);
+            itm.qty = 0;
           }
         }
-        selectedItem = itm
+        selectedItem = itm;
       }
     });
-    
+
     const newItemsArray = this.state.cart_data.filter((itm) => {
       if (itm !== removedItem) {
         return itm;
@@ -2939,7 +2938,7 @@ class Cart extends React.PureComponent {
       if (itm.preOrder) {
         subscribe = true;
       }
-    }); 
+    });
     localStorage.setItem("coupon_code", "");
     localStorage.setItem("freepackage", "");
     localStorage.setItem("freeproduct", "");

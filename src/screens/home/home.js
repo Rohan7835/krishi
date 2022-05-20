@@ -134,6 +134,7 @@ class HOME extends React.Component {
                   unitQuantity: item.unitQuantity,
                   slug: item.slug,
                   configurableItem: item.configurableItem,
+                  unique_id: item.unique_id || null,
                   simpleData: item.simpleItem.packet_size
                     ? [
                         {
